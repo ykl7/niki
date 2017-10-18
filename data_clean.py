@@ -2,7 +2,7 @@ import os
 import sys
 import pandas as pd
 
-base_path = '/Users/apple/Documents/Python/niki/'
+base_path = './niki/'
 
 training_data_file = base_path + 'TrainingData.txt'
 

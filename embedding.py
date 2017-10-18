@@ -7,7 +7,7 @@ import pandas as pd
 
 from gensim.models import Doc2Vec, doc2vec
 
-base_path = '/Users/apple/Documents/Python/niki/'
+base_path = './niki/'
 
 class Embedding():
 
