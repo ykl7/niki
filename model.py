@@ -22,7 +22,18 @@ class Detector:
         self.activation = activation
 
     def create_model(self):
-        pass
+        question_words = Input(shape=(self.question_max, self.word_embedding_size))
+        question_embed_input = Input(shape=(self.doc2vec_size, ))
+
+        lstm_layer = Bidirectional(LSTM(64, return_sequences=True))(question_words)
+        output = Dense(1, activation='sigmoid')(lstm_layer)
+
+        self.model = Model(inputs=[question_words] + [question_embed_input], outputs=output)
+        self.model.compile(optimizer='adadelta', loss='categorical_crossentropy', metrics=['accuracy'])
 
     def fit_model(self, inputs, outputs, epochs):
-        pass
+        filepath = './weights-{epoch:02d}-{val_loss:.2f}.hdf5'
+        checkpoint = ModelCheckpoint(filepath, monitor='val_loss', verbose=1, save_best_only=True, mode='min')
+        callbacks_list = [checkpoint]
+        self.model.fit(inputs, outputs, validation_split=0.2, epochs=epochs, callbacks=callbacks_list, verbose=1)
+
