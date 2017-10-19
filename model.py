@@ -4,16 +4,19 @@ import pickle
 import keras
 import json
 
+from datetime import datetime
 import pandas as pd
 import numpy as np
 
 from gensim.models.keyedvectors import KeyedVectors
-from keras.layers import Layer, Input, merge, Dense, LSTM, Bidirectional, GRU, SimpleRNN, Dropout
+from keras.layers import Layer, Input, merge, Dense, LSTM, Bidirectional, GRU, SimpleRNN, Dropout, Flatten
 from keras.layers.merge import concatenate, dot, multiply
 from keras.models import Model
 from keras.callbacks import ModelCheckpoint
+from keras.utils import np_utils
+from sklearn.preprocessing import LabelEncoder
 
-base_path = './niki/'
+base_path = './'
 
 class Detector:
 
@@ -30,13 +33,14 @@ class Detector:
         question_words = Input(shape=(self.question_max, self.word_embedding_size))
 
         lstm_layer = Bidirectional(LSTM(64, return_sequences=True))(question_words)
-        output = Dense(1, activation='sigmoid')(lstm_layer)
+        flattener = Flatten()(lstm_layer)
+        output = Dense(5, activation='sigmoid')(flattener)
 
         self.model = Model(inputs=[question_words], outputs=output)
         self.model.compile(optimizer='adadelta', loss='categorical_crossentropy', metrics=['accuracy'])
 
     def fit_model(self, inputs, outputs, epochs):
-        filepath = './weights-{epoch:02d}-{val_loss:.2f}.hdf5'
+        filepath = './weights/weights-{epoch:02d}-{val_loss:.2f}.hdf5'
         checkpoint = ModelCheckpoint(filepath, monitor='val_loss', verbose=1, save_best_only=True, mode='min')
         callbacks_list = [checkpoint]
         self.model.fit(inputs, outputs, validation_split=0.2, epochs=epochs, callbacks=callbacks_list, verbose=1)
@@ -74,7 +78,14 @@ def train():
     tester = Detector(max_len, 300, 300)
     tester.set_params('relu')
     tester.create_model()
-    tester.fit_model(words, df['output'], 10)
+
+    encoder = LabelEncoder()
+    tags = df['tag']
+    encoder.fit(tags)
+    encoded_Y = encoder.transform(tags)
+    dummy_y = np_utils.to_categorical(encoded_Y)
+
+    tester.fit_model(words, dummy_y, 10)
 
 if __name__ == '__main__':
     train()
