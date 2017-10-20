@@ -1,3 +1,15 @@
+## Requirements
+
+keras
+numpy
+scikit-learn
+pandas
+gensim
+
+preprocessed Word2Vec vectors trained over Google News dataset
+
+trained model weights (contact repository owner)
+
 ## Command sequence
 
 Simple LSTM with Wor2Vec inputs
