@@ -16,6 +16,8 @@ from keras.callbacks import ModelCheckpoint
 from keras.utils import np_utils
 from sklearn.preprocessing import LabelEncoder
 
+from data_clean import web_data_clean
+
 base_path = './'
 
 class Detector:
@@ -87,6 +89,80 @@ def train():
 
     tester.fit_model(words, dummy_y, 10)
 
+def internal_test():
+    training_pickle_name = base_path + 'TrainingDataPickle.pkl'
+    df = pd.read_pickle(training_pickle_name)
+
+    max_len = 30
+
+    word_vectors = KeyedVectors.load_word2vec_format('./GoogleNews-vectors-negative300.bin', binary=True)
+
+    words = []
+    for index, row in df.iterrows():
+        l = len(row['question'])
+        temp = []
+        if l >= max_len:
+            for i in range(max_len):
+                try:
+                    temp.append(word_vectors[row['question'][i]])
+                except:
+                    temp.append(np.zeros(300))
+        else:
+            pad = max_len - l
+            for i in range(pad):
+                temp.append(np.zeros(300))
+            for i in range(l):
+                try:
+                    temp.append(word_vectors[row['question'][i]])
+                except:
+                    temp.append(np.zeros(300))
+        words.append(temp)
+
+    words = np.array(words)
+    tester = Detector(max_len, 300, 300)
+    tester.set_params('relu')
+    tester.create_model()
+    tester.model.load_weights('./weights/weights-08-0.65.hdf5')
+    out = tester.model.predict(words)
+
+def test():
+    web_data_clean()
+    training_pickle_name = base_path + 'WebTestDataPickle.pkl'
+    df = pd.read_pickle(training_pickle_name)
+
+    max_len = 30
+
+    word_vectors = KeyedVectors.load_word2vec_format('./GoogleNews-vectors-negative300.bin', binary=True)
+
+    words = []
+    for index, row in df.iterrows():
+        l = len(row['question'])
+        temp = []
+        if l >= max_len:
+            for i in range(max_len):
+                try:
+                    temp.append(word_vectors[row['question'][i]])
+                except:
+                    temp.append(np.zeros(300))
+        else:
+            pad = max_len - l
+            for i in range(pad):
+                temp.append(np.zeros(300))
+            for i in range(l):
+                try:
+                    temp.append(word_vectors[row['question'][i]])
+                except:
+                    temp.append(np.zeros(300))
+        words.append(temp)
+
+    words = np.array(words)
+    tester = Detector(max_len, 300, 300)
+    tester.set_params('relu')
+    tester.create_model()
+    tester.model.load_weights('./weights/weights-08-0.65.hdf5')
+    out = tester.model.predict(words)
+
 if __name__ == '__main__':
-    train()
+    # internal_test()
+    test()
 
