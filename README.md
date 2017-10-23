@@ -1,6 +1,6 @@
 ## Model
 
-Simple LSTM with Wor2Vec inputs
+Simple LSTM with Word2Vec inputs
 Categorical crossentropy loss
 Adadelta optimization
 
@@ -25,3 +25,8 @@ trained model weights
 ```python embedding.py```
 
 ```python model.py```
+
+## Results
+
+Training specs in enclosed screenshot
+Test accuracy : 56%

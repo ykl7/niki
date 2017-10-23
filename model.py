@@ -135,10 +135,13 @@ def internal_test():
     tester.model.load_weights('./weights/weights-08-0.70.hdf5')
     out = tester.model.predict(words)
 
+    f = open(base_path+'test_results.txt', 'w+')
+
     correct = 0
     for i in range(out.shape[0]):
         x = out[i].argmax()
         y = str(x)
+        f.write(df['question'][i] + ' ,,, ' + output_category_map[y] + '\n') 
         if output_category_map[y] == df['tag'][i]:
             correct = correct + 1
     print (correct*100)/out.shape[0]
@@ -183,13 +186,15 @@ def test():
     tester.model.load_weights('./weights/weights-08-0.70.hdf5')
     out = tester.model.predict(words)
 
+    f = open(base_path+'web_test_results.txt', 'w+')
+
     correct = 0
     for i in range(out.shape[0]):
         x = out[i].argmax()
         y = str(x)
         if output_category_map[y] == df['tag'][i]:
             correct = correct + 1
-    print (correct*100)/out.shape[0])
+    print (correct*100)/out.shape[0]
 
 if __name__ == '__main__':
     # train()
