@@ -20,6 +20,8 @@ from data_clean import web_data_clean
 
 base_path = './'
 
+output_category_map = {}
+
 class Detector:
 
     def __init__(self, question_max, word_embedding_size, doc2vec_size):
@@ -81,19 +83,15 @@ def train():
     tester.set_params('relu')
     tester.create_model()
 
-    encoder = LabelEncoder()
-    tags = df['tag']
-    encoder.fit(tags)
-    encoded_Y = encoder.transform(tags)
-    dummy_y = np_utils.to_categorical(encoded_Y)
-
     tester.fit_model(words, dummy_y, 10)
 
 def internal_test():
-    training_pickle_name = base_path + 'TrainingDataPickle.pkl'
+    training_pickle_name = base_path + 'TestingDataPickle.pkl'
     df = pd.read_pickle(training_pickle_name)
 
     max_len = 30
+    output_category_map_file = open(base_path+'output_category_map', 'rb')
+    output_category_map = pickle.load(output_category_map_file)
 
     word_vectors = KeyedVectors.load_word2vec_format('./GoogleNews-vectors-negative300.bin', binary=True)
 
@@ -118,12 +116,29 @@ def internal_test():
                     temp.append(np.zeros(300))
         words.append(temp)
 
+    encoder = LabelEncoder()
+    tags = df['tag']
+    encoder.fit(tags)
+    encoded_Y = encoder.transform(tags)
+    result_y = np_utils.to_categorical(encoded_Y)
+
     words = np.array(words)
     tester = Detector(max_len, 300, 300)
     tester.set_params('relu')
     tester.create_model()
-    tester.model.load_weights('./weights/weights-08-0.65.hdf5')
+    tester.model.load_weights('./weights/weights-07-0.68.hdf5')
     out = tester.model.predict(words)
+
+    # print("%s: %.2f%%" % (model.metrics_names[1], scores[1]*100))
+
+    correct = 0
+    for i in range(out.shape[0]):
+        print i
+        for j in range(len(out[i])):
+            print output_category_map[str(np.where(out[j] == 1)[0])]
+        # if output_category_map[str(i)] == df['tag']:
+            # correct = correct + 1
+    print correct/out
 
 def test():
     web_data_clean()
@@ -159,10 +174,11 @@ def test():
     tester = Detector(max_len, 300, 300)
     tester.set_params('relu')
     tester.create_model()
-    tester.model.load_weights('./weights/weights-08-0.65.hdf5')
+    tester.model.load_weights('./weights/weights-07-0.68.hdf5')
     out = tester.model.predict(words)
 
 if __name__ == '__main__':
-    # internal_test()
-    test()
+    # train()
+    internal_test()
+    # test()
 

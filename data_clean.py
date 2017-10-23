@@ -1,11 +1,19 @@
 import os
 import sys
+import pickle
+
 import pandas as pd
+import numpy as np
+
+from keras.utils import np_utils
+from sklearn.preprocessing import LabelEncoder
 
 base_path = './'
 
 def normal_clean():
     training_data_file = base_path + 'TrainingData.txt'
+
+    output_category_map = {}
 
     f = open(training_data_file, 'r')
 
@@ -31,6 +39,19 @@ def normal_clean():
     df['question'] = questions
     df['tag'] = tags
     df['id'] = idxs
+
+    encoder = LabelEncoder()
+    tags = df['tag']
+    encoder.fit(tags)
+    encoded_Y = encoder.transform(tags)
+    dummy_y = np_utils.to_categorical(encoded_Y)
+
+    for i in range(len(dummy_y)):
+        output_category_map[str(np.where(dummy_y[i] == 1)[0][0])] = df['tag'][i]
+
+    dump_map_file = open('./output_category_map', 'wb')
+    pickle.dump(output_category_map, dump_map_file)
+
     df.to_pickle(base_path+'TrainingDataPickle.pkl')
 
     questions = []
