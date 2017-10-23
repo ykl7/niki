@@ -83,6 +83,12 @@ def train():
     tester.set_params('relu')
     tester.create_model()
 
+    encoder = LabelEncoder()
+    tags = df['tag']
+    encoder.fit(tags)
+    encoded_Y = encoder.transform(tags)
+    dummy_y = np_utils.to_categorical(encoded_Y)
+
     tester.fit_model(words, dummy_y, 10)
 
 def internal_test():
@@ -126,24 +132,24 @@ def internal_test():
     tester = Detector(max_len, 300, 300)
     tester.set_params('relu')
     tester.create_model()
-    tester.model.load_weights('./weights/weights-07-0.68.hdf5')
+    tester.model.load_weights('./weights/weights-08-0.70.hdf5')
     out = tester.model.predict(words)
-
-    # print("%s: %.2f%%" % (model.metrics_names[1], scores[1]*100))
 
     correct = 0
     for i in range(out.shape[0]):
-        print i
-        for j in range(len(out[i])):
-            print output_category_map[str(np.where(out[j] == 1)[0])]
-        # if output_category_map[str(i)] == df['tag']:
-            # correct = correct + 1
-    print correct/out
+        x = out[i].argmax()
+        y = str(x)
+        if output_category_map[y] == df['tag'][i]:
+            correct = correct + 1
+    print (correct*100)/out.shape[0]
 
 def test():
     web_data_clean()
     training_pickle_name = base_path + 'WebTestDataPickle.pkl'
     df = pd.read_pickle(training_pickle_name)
+
+    output_category_map_file = open(base_path+'output_category_map', 'rb')
+    output_category_map = pickle.load(output_category_map_file)
 
     max_len = 30
 
@@ -174,11 +180,18 @@ def test():
     tester = Detector(max_len, 300, 300)
     tester.set_params('relu')
     tester.create_model()
-    tester.model.load_weights('./weights/weights-07-0.68.hdf5')
+    tester.model.load_weights('./weights/weights-08-0.70.hdf5')
     out = tester.model.predict(words)
+
+    correct = 0
+    for i in range(out.shape[0]):
+        x = out[i].argmax()
+        y = str(x)
+        if output_category_map[y] == df['tag'][i]:
+            correct = correct + 1
+    print (correct*100)/out.shape[0])
 
 if __name__ == '__main__':
     # train()
     internal_test()
-    # test()
 
