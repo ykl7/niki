@@ -8,11 +8,11 @@ Adadelta optimization
 
 ```pip install -r requirements.txt```
 
-[*] keras
-[*] numpy
-[*] scikit-learn
-[*] pandas
-[*] gensim
+* keras
+* numpy
+* scikit-learn
+* pandas
+* gensim
 
 preprocessed Word2Vec vectors trained over Google News dataset
 
@@ -29,4 +29,5 @@ trained model weights
 ## Results
 
 Training specs in enclosed screenshot
+
 Test accuracy : 56%

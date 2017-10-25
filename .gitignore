@@ -1,0 +1,8 @@
+weights/
+.DS_Store
+embed_model
+*.bin
+*.pkl
+*.pyc
+*.txt
+output_category_map
